@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 public record UpdateInterviewStatusRequest(
 
         @NotNull(message = "Target status is required")
-        InterviewStatus toStatus ,
+        InterviewStatus toStatus,
 
         String note
 ) {

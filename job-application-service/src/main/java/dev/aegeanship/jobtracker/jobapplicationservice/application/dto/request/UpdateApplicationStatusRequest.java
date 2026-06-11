@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 public record UpdateApplicationStatusRequest(
 
         @NotNull(message = "Target status is required")
-        ApplicationStatus toStatus ,
+        ApplicationStatus toStatus,
 
         String note
 ) {
