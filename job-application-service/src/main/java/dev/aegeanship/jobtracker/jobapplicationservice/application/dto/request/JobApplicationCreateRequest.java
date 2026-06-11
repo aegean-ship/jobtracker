@@ -7,7 +7,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public record CreateJobApplicationRequest(
+public record JobApplicationCreateRequest(
 
         @NotBlank(message = "Company name is required")
         String companyName,

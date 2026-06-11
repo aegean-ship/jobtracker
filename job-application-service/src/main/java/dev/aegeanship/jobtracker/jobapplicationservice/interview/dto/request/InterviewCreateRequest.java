@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Positive;
 import java.time.Instant;
 import java.util.UUID;
 
-public record CreateInterviewRequest(
+public record InterviewCreateRequest(
 
         @NotNull(message = "Job application id is required")
         UUID jobApplicationId,
