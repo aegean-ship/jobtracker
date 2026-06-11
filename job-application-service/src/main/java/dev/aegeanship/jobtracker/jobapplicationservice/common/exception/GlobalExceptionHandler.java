@@ -34,6 +34,13 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(ex, request);
     }
 
+    @ExceptionHandler(InvalidStatusTransitionException.class)
+    public ResponseEntity<ApiStandardResponse<Void>> handleInvalidStatusTransitionException(
+            InvalidStatusTransitionException ex,
+            HttpServletRequest request) {
+        return buildErrorResponse(ex, request);
+    }
+
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<ApiStandardResponse<Void>> handleBaseException(
             BaseException ex,
