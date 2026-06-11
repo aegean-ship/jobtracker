@@ -1,8 +1,10 @@
 package dev.aegeanship.jobtracker.userservice.common.exception;
 
-import dev.aegeanship.jobtracker.userservice.common.response.ApiError;
-import dev.aegeanship.jobtracker.userservice.common.response.ApiStandardResponse;
-import dev.aegeanship.jobtracker.userservice.common.response.ValidationFieldError;
+
+import dev.aegeanship.jobtracker.common.exception.BaseException;
+import dev.aegeanship.jobtracker.common.response.ApiError;
+import dev.aegeanship.jobtracker.common.response.ApiStandardResponse;
+import dev.aegeanship.jobtracker.common.response.ValidationFieldError;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

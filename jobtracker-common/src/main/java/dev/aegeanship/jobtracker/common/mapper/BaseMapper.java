@@ -1,4 +1,4 @@
-package dev.aegeanship.jobtracker.userservice.common.mapper;
+package dev.aegeanship.jobtracker.common.mapper;
 
 import java.util.List;
 
