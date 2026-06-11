@@ -1,6 +1,6 @@
 package dev.aegeanship.jobtracker.userservice.user.entity;
 
-import dev.aegeanship.jobtracker.userservice.common.entity.BaseEntity;
+import dev.aegeanship.jobtracker.common.entity.BaseEntity;
 import dev.aegeanship.jobtracker.userservice.user.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;

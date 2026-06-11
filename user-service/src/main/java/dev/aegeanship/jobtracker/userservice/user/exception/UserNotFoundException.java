@@ -1,6 +1,6 @@
 package dev.aegeanship.jobtracker.userservice.user.exception;
 
-import dev.aegeanship.jobtracker.userservice.common.exception.BaseException;
+import dev.aegeanship.jobtracker.common.exception.BaseException;
 import org.springframework.http.HttpStatus;
 
 

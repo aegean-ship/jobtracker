@@ -1,4 +1,4 @@
-package dev.aegeanship.jobtracker.userservice.common.response;
+package dev.aegeanship.jobtracker.common.response;
 
 public record ValidationFieldError(
 

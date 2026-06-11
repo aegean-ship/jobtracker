@@ -1,6 +1,6 @@
-package dev.aegeanship.jobtracker.userservice.common.controller;
+package dev.aegeanship.jobtracker.common.controller;
 
-import dev.aegeanship.jobtracker.userservice.common.response.ApiStandardResponse;
+import dev.aegeanship.jobtracker.common.response.ApiStandardResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 

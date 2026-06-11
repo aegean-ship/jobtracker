@@ -1,6 +1,6 @@
 package dev.aegeanship.jobtracker.userservice.user.entity;
 
-import dev.aegeanship.jobtracker.userservice.common.entity.BaseEntity;
+import dev.aegeanship.jobtracker.common.entity.BaseEntity;
 import dev.aegeanship.jobtracker.userservice.user.entity.embeddable.SocialLinks;
 import jakarta.persistence.*;
 import lombok.*;

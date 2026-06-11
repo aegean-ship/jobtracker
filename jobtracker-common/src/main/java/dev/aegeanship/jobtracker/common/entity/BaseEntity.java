@@ -1,4 +1,4 @@
-package dev.aegeanship.jobtracker.userservice.common.entity;
+package dev.aegeanship.jobtracker.common.entity;
 
 
 import jakarta.persistence.*;
