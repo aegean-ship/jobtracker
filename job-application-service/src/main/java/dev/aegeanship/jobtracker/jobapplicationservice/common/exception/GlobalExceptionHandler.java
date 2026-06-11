@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -51,9 +52,10 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(ex, request);
     }
 
-    // missing X-User-Id header, malformed UUIDs in path/query, unreadable JSON
+    // missing X-User-Id header or query parameter, malformed UUIDs, unreadable JSON
     @ExceptionHandler({
             MissingRequestHeaderException.class,
+            MissingServletRequestParameterException.class,
             MethodArgumentTypeMismatchException.class,
             HttpMessageNotReadableException.class
     })
