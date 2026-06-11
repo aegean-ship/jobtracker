@@ -10,9 +10,12 @@ import dev.aegeanship.jobtracker.jobapplicationservice.interview.exception.Inter
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.List;
 import java.util.UUID;
@@ -46,6 +49,28 @@ public class GlobalExceptionHandler {
             BaseException ex,
             HttpServletRequest request) {
         return buildErrorResponse(ex, request);
+    }
+
+    // missing X-User-Id header, malformed UUIDs in path/query, unreadable JSON
+    @ExceptionHandler({
+            MissingRequestHeaderException.class,
+            MethodArgumentTypeMismatchException.class,
+            HttpMessageNotReadableException.class
+    })
+    public ResponseEntity<ApiStandardResponse<Void>> handleBadRequest(
+            Exception ex,
+            HttpServletRequest request) {
+
+        ApiError error = ApiError.simple(
+                generateRequestId(),
+                request.getRequestURI(),
+                "BAD_REQUEST",
+                ex.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiStandardResponse.error(error));
     }
 
     // handles @Valid / @Validated failures
