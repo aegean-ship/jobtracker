@@ -11,7 +11,6 @@
 	<groupId>dev.aegeanship.jobtracker</groupId>
 	<artifactId>job-application-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
 	<description/>
 	<url/>
 	<licenses>
@@ -30,6 +29,11 @@
 		<java.version>21</java.version>
 	</properties>
 	<dependencies>
+		<dependency>
+			<groupId>dev.aegeanship.jobtracker</groupId>
+			<artifactId>jobtracker-common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
