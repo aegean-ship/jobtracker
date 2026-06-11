@@ -94,7 +94,8 @@ public class JobApplicationService {
 
     @Transactional
     public void delete(UUID userId, UUID id) {
-        // history and interviews are removed by ON DELETE CASCADE
+        // soft delete via @SQLDelete; the purge scheduler hard-deletes the
+        // row (and its children via ON DELETE CASCADE) after the retention period
         jobApplicationRepository.delete(getOwnedApplication(userId, id));
     }
 

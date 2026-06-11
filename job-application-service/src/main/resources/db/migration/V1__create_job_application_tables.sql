@@ -26,10 +26,13 @@ CREATE TABLE job_applications
                               'OFFER', 'ACCEPTED', 'REJECTED', 'WITHDRAWN', 'GHOSTED')),
     applied_at       DATE,
     source           VARCHAR(255),
-    notes            TEXT
+    notes            TEXT,
+    -- set on soft delete; rows past the grace period are purged by a scheduled job
+    deleted_at       TIMESTAMPTZ
 );
 
-CREATE INDEX idx_job_applications_user_id ON job_applications (user_id);
+CREATE INDEX idx_job_applications_user_id ON job_applications (user_id)
+    WHERE deleted_at IS NULL;
 
 CREATE TABLE application_status_history
 (

@@ -1,3 +1,9 @@
 spring:
   application:
     name: job-application-service
+
+jobtracker:
+  cleanup:
+    # purge soft-deleted job applications past the retention period, daily at 03:00
+    cron: "0 0 3 * * *"
+    retention: 30d

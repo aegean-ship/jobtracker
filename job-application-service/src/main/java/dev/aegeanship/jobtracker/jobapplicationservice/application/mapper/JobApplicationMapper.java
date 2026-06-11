@@ -14,6 +14,7 @@ public interface JobApplicationMapper {
 
     // status is ignored so the entity's @Builder.Default (APPLIED) applies
     @Mapping(target = "status", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
     JobApplication toEntity(JobApplicationCreateRequest request, UUID userId);
 
     JobApplicationResponse toResponse(JobApplication application);
