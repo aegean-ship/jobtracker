@@ -68,5 +68,6 @@ public class JobApplication extends BaseEntity {
     @Column(columnDefinition = "text")
     private String notes;
 
+    @Column(name = "deleted_at")
     private Instant deletedAt;
 }
