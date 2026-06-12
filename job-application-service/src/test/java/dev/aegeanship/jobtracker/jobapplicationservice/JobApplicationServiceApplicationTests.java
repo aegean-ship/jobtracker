@@ -166,6 +166,6 @@ class JobApplicationServiceApplicationTests extends AbstractIntegrationTest {
 	}
 
 	private UUID idFrom(byte[] responseBody) {
-		return UUID.fromString(JsonPath.read(new String(responseBody), "$.data.id"));
+		return UUID.fromString(JsonPath.read(new String(responseBody, java.nio.charset.StandardCharsets.UTF_8), "$.data.id"));
 	}
 }
