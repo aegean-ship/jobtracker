@@ -1,5 +1,6 @@
 package dev.aegeanship.jobtracker.jobapplicationservice.application.dto.request;
 
+import dev.aegeanship.jobtracker.jobapplicationservice.application.enums.CurrencyCode;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.enums.InitialStatus;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.enums.WorkMode;
 import jakarta.validation.constraints.AssertTrue;
@@ -31,7 +32,7 @@ public record JobApplicationCreateRequest(
         @PositiveOrZero(message = "Maximum salary must be zero or positive")
         BigDecimal salaryMax,
 
-        String currency,
+        CurrencyCode currency,
 
         LocalDate appliedAt,
 

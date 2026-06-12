@@ -19,7 +19,9 @@ CREATE TABLE job_applications
             CHECK (work_mode IN ('ONSITE', 'HYBRID', 'REMOTE')),
     salary_min       NUMERIC(38, 2),
     salary_max       NUMERIC(38, 2),
-    currency         VARCHAR(255),
+    currency         VARCHAR(3)
+        CONSTRAINT chk_job_applications_currency
+            CHECK (currency IN ('TRY', 'USD', 'EUR', 'GBP')),
     status           VARCHAR(255)   NOT NULL
         CONSTRAINT chk_job_applications_status
             CHECK (status IN ('SAVED', 'APPLIED', 'SCREENING', 'INTERVIEWING',

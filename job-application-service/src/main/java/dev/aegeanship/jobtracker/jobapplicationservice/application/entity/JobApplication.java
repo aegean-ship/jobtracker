@@ -2,6 +2,7 @@ package dev.aegeanship.jobtracker.jobapplicationservice.application.entity;
 
 import dev.aegeanship.jobtracker.common.entity.BaseEntity;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.enums.ApplicationStatus;
+import dev.aegeanship.jobtracker.jobapplicationservice.application.enums.CurrencyCode;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.enums.WorkMode;
 import jakarta.persistence.*;
 import lombok.*;
@@ -54,7 +55,9 @@ public class JobApplication extends BaseEntity {
 
     private BigDecimal salaryMax;
 
-    private String currency;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 3)
+    private CurrencyCode currency;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -4,6 +4,7 @@ import com.jayway.jsonpath.JsonPath;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.request.ApplicationStatusUpdateRequest;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.request.JobApplicationCreateRequest;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.enums.ApplicationStatus;
+import dev.aegeanship.jobtracker.jobapplicationservice.application.enums.CurrencyCode;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.enums.WorkMode;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.dto.request.InterviewCreateRequest;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.dto.request.InterviewStatusUpdateRequest;
@@ -66,7 +67,7 @@ class JobApplicationServiceApplicationTests extends AbstractIntegrationTest {
 				.body(new JobApplicationCreateRequest(
 						"Acme", "https://acme.dev", "Backend Engineer",
 						"https://acme.dev/jobs/42", "Izmir", WorkMode.HYBRID,
-						new BigDecimal("90000"), new BigDecimal("120000"), "EUR",
+						new BigDecimal("90000"), new BigDecimal("120000"), CurrencyCode.EUR,
 						LocalDate.now(), "LinkedIn", "referred by a friend", null))
 				.exchange()
 				.expectStatus().isCreated()

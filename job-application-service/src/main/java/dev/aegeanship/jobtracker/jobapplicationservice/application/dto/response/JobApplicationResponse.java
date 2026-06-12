@@ -1,6 +1,7 @@
 package dev.aegeanship.jobtracker.jobapplicationservice.application.dto.response;
 
 import dev.aegeanship.jobtracker.jobapplicationservice.application.enums.ApplicationStatus;
+import dev.aegeanship.jobtracker.jobapplicationservice.application.enums.CurrencyCode;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.enums.WorkMode;
 
 import java.math.BigDecimal;
@@ -19,7 +20,7 @@ public record JobApplicationResponse(
         WorkMode workMode,
         BigDecimal salaryMin,
         BigDecimal salaryMax,
-        String currency,
+        CurrencyCode currency,
         ApplicationStatus status,
         LocalDate appliedAt,
         String source,
