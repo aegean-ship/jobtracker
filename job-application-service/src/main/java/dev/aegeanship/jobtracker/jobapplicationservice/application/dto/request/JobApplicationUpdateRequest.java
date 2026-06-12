@@ -1,13 +1,18 @@
 package dev.aegeanship.jobtracker.jobapplicationservice.application.dto.request;
 
+import dev.aegeanship.jobtracker.jobapplicationservice.application.enums.CurrencyCode;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.enums.WorkMode;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
-public record CreateJobApplicationRequest(
+/**
+ * Full replacement of an application's editable fields. Lifecycle fields
+ * are managed elsewhere: status through the status endpoint, appliedAt at
+ * creation or stamped on the SAVED -> APPLIED transition.
+ */
+public record JobApplicationUpdateRequest(
 
         @NotBlank(message = "Company name is required")
         String companyName,
@@ -29,9 +34,7 @@ public record CreateJobApplicationRequest(
         @PositiveOrZero(message = "Maximum salary must be zero or positive")
         BigDecimal salaryMax,
 
-        String currency,
-
-        LocalDate appliedAt,
+        CurrencyCode currency,
 
         String source,
 
