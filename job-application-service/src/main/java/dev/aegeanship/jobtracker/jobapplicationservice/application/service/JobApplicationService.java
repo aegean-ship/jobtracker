@@ -2,6 +2,7 @@ package dev.aegeanship.jobtracker.jobapplicationservice.application.service;
 
 import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.request.ApplicationStatusUpdateRequest;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.request.JobApplicationCreateRequest;
+import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.request.JobApplicationUpdateRequest;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.response.ApplicationStatusHistoryResponse;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.response.JobApplicationResponse;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.entity.ApplicationStatusHistory;
@@ -62,6 +63,14 @@ public class JobApplicationService {
     public Page<JobApplicationResponse> getAllByUser(UUID userId, Pageable pageable) {
         return jobApplicationRepository.findAllByUserId(userId, pageable)
                 .map(jobApplicationMapper::toResponse);
+    }
+
+    @Transactional
+    public JobApplicationResponse update(UUID userId, UUID id,
+                                         JobApplicationUpdateRequest request) {
+        JobApplication application = getOwnedApplication(userId, id);
+        jobApplicationMapper.updateEntity(request, application);
+        return jobApplicationMapper.toResponse(application);
     }
 
     @Transactional

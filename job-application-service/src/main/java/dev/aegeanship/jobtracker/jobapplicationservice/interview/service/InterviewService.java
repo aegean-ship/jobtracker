@@ -5,6 +5,7 @@ import dev.aegeanship.jobtracker.jobapplicationservice.application.service.JobAp
 import dev.aegeanship.jobtracker.jobapplicationservice.common.exception.InvalidStatusTransitionException;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.dto.request.InterviewCreateRequest;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.dto.request.InterviewStatusUpdateRequest;
+import dev.aegeanship.jobtracker.jobapplicationservice.interview.dto.request.InterviewUpdateRequest;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.dto.response.InterviewResponse;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.entity.Interview;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.enums.InterviewStatus;
@@ -57,6 +58,13 @@ public class InterviewService {
                 .stream()
                 .map(interviewMapper::toResponse)
                 .toList();
+    }
+
+    @Transactional
+    public InterviewResponse update(UUID userId, UUID id, InterviewUpdateRequest request) {
+        Interview interview = getOwnedInterview(userId, id);
+        interviewMapper.updateEntity(request, interview);
+        return interviewMapper.toResponse(interview);
     }
 
     @Transactional

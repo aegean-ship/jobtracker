@@ -4,6 +4,7 @@ import dev.aegeanship.jobtracker.common.controller.BaseController;
 import dev.aegeanship.jobtracker.common.response.ApiStandardResponse;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.dto.request.InterviewCreateRequest;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.dto.request.InterviewStatusUpdateRequest;
+import dev.aegeanship.jobtracker.jobapplicationservice.interview.dto.request.InterviewUpdateRequest;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.dto.response.InterviewResponse;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.service.InterviewService;
 import jakarta.validation.Valid;
@@ -47,6 +48,14 @@ public class InterviewController extends BaseController {
             @RequestHeader(USER_ID_HEADER) UUID userId,
             @RequestParam UUID jobApplicationId) {
         return ok(interviewService.getAllByApplication(userId, jobApplicationId));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiStandardResponse<InterviewResponse>> update(
+            @RequestHeader(USER_ID_HEADER) UUID userId,
+            @PathVariable UUID id,
+            @Valid @RequestBody InterviewUpdateRequest request) {
+        return ok(interviewService.update(userId, id, request));
     }
 
     @PatchMapping("/{id}/status")

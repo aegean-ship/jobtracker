@@ -2,6 +2,7 @@ package dev.aegeanship.jobtracker.jobapplicationservice.application.service;
 
 import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.request.ApplicationStatusUpdateRequest;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.request.JobApplicationCreateRequest;
+import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.request.JobApplicationUpdateRequest;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.response.ApplicationStatusHistoryResponse;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.response.JobApplicationResponse;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.entity.ApplicationStatusHistory;
@@ -120,6 +121,41 @@ class JobApplicationServiceTest {
 
         assertThat(page.getTotalElements()).isEqualTo(1);
         assertThat(page.getContent().getFirst().id()).isEqualTo(APPLICATION_ID);
+    }
+
+    @Test
+    void updateReplacesEditableFieldsAndPreservesLifecycleFields() {
+        JobApplication application = application(ApplicationStatus.SCREENING);
+        application.setAppliedAt(LocalDate.of(2026, 6, 1));
+        application.setNotes("old notes");
+        when(jobApplicationRepository.findByIdAndUserId(APPLICATION_ID, USER_ID))
+                .thenReturn(Optional.of(application));
+
+        JobApplicationResponse response = service.update(USER_ID, APPLICATION_ID,
+                new JobApplicationUpdateRequest("Globex", null, "Staff Engineer",
+                        null, "Berlin", null, null, null, null, null, null));
+
+        assertThat(response.companyName()).isEqualTo("Globex");
+        assertThat(response.positionTitle()).isEqualTo("Staff Engineer");
+        assertThat(application.getLocation()).isEqualTo("Berlin");
+        // full replacement: a null in the request clears the field
+        assertThat(application.getNotes()).isNull();
+        // lifecycle fields stay untouched and no history is written
+        assertThat(application.getUserId()).isEqualTo(USER_ID);
+        assertThat(application.getStatus()).isEqualTo(ApplicationStatus.SCREENING);
+        assertThat(application.getAppliedAt()).isEqualTo(LocalDate.of(2026, 6, 1));
+        verify(statusHistoryRepository, never()).save(any());
+    }
+
+    @Test
+    void updateThrowsWhenApplicationMissingOrNotOwned() {
+        when(jobApplicationRepository.findByIdAndUserId(APPLICATION_ID, USER_ID))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.update(USER_ID, APPLICATION_ID,
+                new JobApplicationUpdateRequest("Globex", null, "Staff Engineer",
+                        null, null, null, null, null, null, null, null)))
+                .isInstanceOf(JobApplicationNotFoundException.class);
     }
 
     @Test

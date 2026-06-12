@@ -3,6 +3,7 @@ package dev.aegeanship.jobtracker.jobapplicationservice.application.controller;
 import tools.jackson.databind.json.JsonMapper;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.request.ApplicationStatusUpdateRequest;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.request.JobApplicationCreateRequest;
+import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.request.JobApplicationUpdateRequest;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.response.ApplicationStatusHistoryResponse;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.response.JobApplicationResponse;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.enums.ApplicationStatus;
@@ -38,6 +39,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -182,6 +184,37 @@ class JobApplicationControllerTest {
                 .isNotNull()
                 .extracting(Sort.Order::getDirection)
                 .isEqualTo(Sort.Direction.DESC);
+    }
+
+    @Test
+    void updateReturnsUpdatedApplication() throws Exception {
+        when(jobApplicationService.update(
+                eq(USER_ID), eq(APPLICATION_ID), any(JobApplicationUpdateRequest.class)))
+                .thenReturn(applicationResponse(ApplicationStatus.APPLIED));
+
+        mockMvc.perform(put(BASE_URL + "/{id}", APPLICATION_ID)
+                        .header(USER_ID_HEADER, USER_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(new JobApplicationUpdateRequest(
+                                "Acme", null, "Backend Engineer",
+                                null, null, null, null, null, null, null, null))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.id").value(APPLICATION_ID.toString()))
+                .andExpect(jsonPath("$.data.companyName").value("Acme"));
+    }
+
+    @Test
+    void updateWithInvalidBodyReturnsValidationFieldErrors() throws Exception {
+        mockMvc.perform(put(BASE_URL + "/{id}", APPLICATION_ID)
+                        .header(USER_ID_HEADER, USER_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"companyName\":\"  \"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error.code").value("VALIDATION_FAILED"))
+                .andExpect(jsonPath("$.error.fieldErrors[?(@.field == 'companyName')]").exists())
+                .andExpect(jsonPath("$.error.fieldErrors[?(@.field == 'positionTitle')]").exists());
+
+        verify(jobApplicationService, never()).update(any(), any(), any());
     }
 
     @Test

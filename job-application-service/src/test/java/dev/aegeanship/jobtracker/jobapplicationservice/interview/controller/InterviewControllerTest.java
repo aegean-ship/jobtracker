@@ -4,6 +4,7 @@ import tools.jackson.databind.json.JsonMapper;
 import dev.aegeanship.jobtracker.jobapplicationservice.common.exception.InvalidStatusTransitionException;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.dto.request.InterviewCreateRequest;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.dto.request.InterviewStatusUpdateRequest;
+import dev.aegeanship.jobtracker.jobapplicationservice.interview.dto.request.InterviewUpdateRequest;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.dto.response.InterviewResponse;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.enums.InterviewStatus;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.enums.InterviewType;
@@ -29,6 +30,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -120,6 +122,34 @@ class InterviewControllerTest {
         mockMvc.perform(get(BASE_URL).header(USER_ID_HEADER, USER_ID))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error.code").value("BAD_REQUEST"));
+    }
+
+    @Test
+    void updateReturnsUpdatedInterview() throws Exception {
+        when(interviewService.update(
+                eq(USER_ID), eq(INTERVIEW_ID), any(InterviewUpdateRequest.class)))
+                .thenReturn(interviewResponse(InterviewStatus.SCHEDULED, null));
+
+        mockMvc.perform(put(BASE_URL + "/{id}", INTERVIEW_ID)
+                        .header(USER_ID_HEADER, USER_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(new InterviewUpdateRequest(
+                                InterviewType.TECHNICAL, null, 2, 45, null, null, null))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.id").value(INTERVIEW_ID.toString()));
+    }
+
+    @Test
+    void updateWithMissingTypeReturnsValidationError() throws Exception {
+        mockMvc.perform(put(BASE_URL + "/{id}", INTERVIEW_ID)
+                        .header(USER_ID_HEADER, USER_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"round\":2}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error.code").value("VALIDATION_FAILED"))
+                .andExpect(jsonPath("$.error.fieldErrors[?(@.field == 'type')]").exists());
+
+        verify(interviewService, never()).update(any(), any(), any());
     }
 
     @Test

@@ -6,6 +6,7 @@ import dev.aegeanship.jobtracker.jobapplicationservice.application.service.JobAp
 import dev.aegeanship.jobtracker.jobapplicationservice.common.exception.InvalidStatusTransitionException;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.dto.request.InterviewCreateRequest;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.dto.request.InterviewStatusUpdateRequest;
+import dev.aegeanship.jobtracker.jobapplicationservice.interview.dto.request.InterviewUpdateRequest;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.dto.response.InterviewResponse;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.entity.Interview;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.enums.InterviewStatus;
@@ -21,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -102,6 +104,38 @@ class InterviewServiceTest {
         assertThat(responses).hasSize(1);
         assertThat(responses.getFirst().id()).isEqualTo(INTERVIEW_ID);
         assertThat(responses.getFirst().jobApplicationId()).isEqualTo(APPLICATION_ID);
+    }
+
+    @Test
+    void updateReplacesEditableFieldsAndPreservesStatusAndParent() {
+        Interview interview = interview(InterviewStatus.SCHEDULED, "prep done");
+        when(interviewRepository.findByIdAndJobApplication_UserId(INTERVIEW_ID, USER_ID))
+                .thenReturn(Optional.of(interview));
+
+        Instant rescheduled = Instant.parse("2026-06-20T10:00:00Z");
+        InterviewResponse response = service.update(USER_ID, INTERVIEW_ID,
+                new InterviewUpdateRequest(InterviewType.SYSTEM_DESIGN, rescheduled,
+                        2, 45, "Jane Doe", "https://meet.example/abc", "rescheduled"));
+
+        assertThat(response.type()).isEqualTo(InterviewType.SYSTEM_DESIGN);
+        assertThat(interview.getScheduledAt()).isEqualTo(rescheduled);
+        assertThat(interview.getRound()).isEqualTo(2);
+        assertThat(interview.getInterviewerName()).isEqualTo("Jane Doe");
+        assertThat(interview.getNotes()).isEqualTo("rescheduled");
+        // parent and status stay untouched
+        assertThat(interview.getStatus()).isEqualTo(InterviewStatus.SCHEDULED);
+        assertThat(interview.getJobApplication().getId()).isEqualTo(APPLICATION_ID);
+    }
+
+    @Test
+    void updateThrowsWhenInterviewMissingOrNotOwned() {
+        when(interviewRepository.findByIdAndJobApplication_UserId(INTERVIEW_ID, USER_ID))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.update(USER_ID, INTERVIEW_ID,
+                new InterviewUpdateRequest(InterviewType.TECHNICAL, null,
+                        1, 60, null, null, null)))
+                .isInstanceOf(InterviewNotFoundException.class);
     }
 
     @Test

@@ -3,6 +3,7 @@ package dev.aegeanship.jobtracker.jobapplicationservice.application.service;
 import dev.aegeanship.jobtracker.jobapplicationservice.AbstractIntegrationTest;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.request.ApplicationStatusUpdateRequest;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.request.JobApplicationCreateRequest;
+import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.request.JobApplicationUpdateRequest;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.response.ApplicationStatusHistoryResponse;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.response.JobApplicationResponse;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.enums.ApplicationStatus;
@@ -114,6 +115,22 @@ class JobApplicationServiceIntegrationTest extends AbstractIntegrationTest {
         assertThat(firstPage.getTotalElements()).isEqualTo(3);
         assertThat(firstPage.getContent()).hasSize(2);
         assertThat(firstPage.getTotalPages()).isEqualTo(2);
+    }
+
+    @Test
+    void updatePersistsReplacedFieldsAndKeepsLifecycleFields() {
+        JobApplicationResponse created = service.create(userId, createRequest("Acme"));
+
+        service.update(userId, created.id(),
+                new JobApplicationUpdateRequest("Globex", null, "Staff Engineer",
+                        null, "Berlin", null, null, null, null, null, null));
+
+        JobApplicationResponse reloaded = service.getById(userId, created.id());
+        assertThat(reloaded.companyName()).isEqualTo("Globex");
+        assertThat(reloaded.positionTitle()).isEqualTo("Staff Engineer");
+        assertThat(reloaded.location()).isEqualTo("Berlin");
+        assertThat(reloaded.status()).isEqualTo(ApplicationStatus.APPLIED);
+        assertThat(service.getStatusHistory(userId, created.id())).hasSize(1);
     }
 
     @Test

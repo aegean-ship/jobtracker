@@ -4,6 +4,7 @@ import dev.aegeanship.jobtracker.common.controller.BaseController;
 import dev.aegeanship.jobtracker.common.response.ApiStandardResponse;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.request.ApplicationStatusUpdateRequest;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.request.JobApplicationCreateRequest;
+import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.request.JobApplicationUpdateRequest;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.response.ApplicationStatusHistoryResponse;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.response.JobApplicationResponse;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.service.JobApplicationService;
@@ -53,6 +54,14 @@ public class JobApplicationController extends BaseController {
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable) {
         return ok(jobApplicationService.getAllByUser(userId, pageable));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiStandardResponse<JobApplicationResponse>> update(
+            @RequestHeader(USER_ID_HEADER) UUID userId,
+            @PathVariable UUID id,
+            @Valid @RequestBody JobApplicationUpdateRequest request) {
+        return ok(jobApplicationService.update(userId, id, request));
     }
 
     @PatchMapping("/{id}/status")

@@ -6,6 +6,7 @@ import dev.aegeanship.jobtracker.jobapplicationservice.application.exception.Job
 import dev.aegeanship.jobtracker.jobapplicationservice.application.service.JobApplicationService;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.dto.request.InterviewCreateRequest;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.dto.request.InterviewStatusUpdateRequest;
+import dev.aegeanship.jobtracker.jobapplicationservice.interview.dto.request.InterviewUpdateRequest;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.dto.response.InterviewResponse;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.enums.InterviewStatus;
 import dev.aegeanship.jobtracker.jobapplicationservice.interview.enums.InterviewType;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.time.Instant;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,6 +85,24 @@ class InterviewServiceIntegrationTest extends AbstractIntegrationTest {
                 .isInstanceOf(InterviewNotFoundException.class);
         assertThatThrownBy(() -> interviewService.getAllByApplication(userId, applicationId))
                 .isInstanceOf(JobApplicationNotFoundException.class);
+    }
+
+    @Test
+    void updatePersistsReplacedFieldsAndKeepsStatus() {
+        InterviewResponse created = interviewService.create(userId, createRequest());
+
+        Instant rescheduled = Instant.parse("2026-06-20T10:00:00Z");
+        interviewService.update(userId, created.id(),
+                new InterviewUpdateRequest(InterviewType.SYSTEM_DESIGN, rescheduled,
+                        2, 45, "Jane Doe", null, "rescheduled"));
+
+        InterviewResponse reloaded = interviewService.getById(userId, created.id());
+        assertThat(reloaded.type()).isEqualTo(InterviewType.SYSTEM_DESIGN);
+        assertThat(reloaded.scheduledAt()).isEqualTo(rescheduled);
+        assertThat(reloaded.round()).isEqualTo(2);
+        assertThat(reloaded.interviewerName()).isEqualTo("Jane Doe");
+        assertThat(reloaded.notes()).isEqualTo("rescheduled");
+        assertThat(reloaded.status()).isEqualTo(InterviewStatus.SCHEDULED);
     }
 
     @Test
