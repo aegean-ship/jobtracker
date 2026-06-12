@@ -52,7 +52,7 @@ CREATE TABLE application_status_history
         CONSTRAINT chk_application_status_history_to_status
             CHECK (to_status IN ('SAVED', 'APPLIED', 'SCREENING', 'INTERVIEWING',
                                  'OFFER', 'ACCEPTED', 'REJECTED', 'WITHDRAWN', 'GHOSTED')),
-    note               VARCHAR(255)
+    note               TEXT
 );
 
 CREATE INDEX idx_application_status_history_job_application_id
