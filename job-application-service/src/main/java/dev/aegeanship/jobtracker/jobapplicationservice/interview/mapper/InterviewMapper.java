@@ -15,7 +15,6 @@ public interface InterviewMapper {
 
     // status is ignored so the entity's @Builder.Default (SCHEDULED) applies
     @Mapping(target = "status", ignore = true)
-    @Mapping(target = "jobApplication", source = "jobApplication")
     @Mapping(target = "notes", source = "request.notes")
     Interview toEntity(InterviewCreateRequest request, JobApplication jobApplication);
 
