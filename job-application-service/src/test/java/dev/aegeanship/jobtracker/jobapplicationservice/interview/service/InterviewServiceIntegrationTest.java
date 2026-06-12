@@ -40,7 +40,7 @@ class InterviewServiceIntegrationTest extends AbstractIntegrationTest {
         userId = UUID.randomUUID();
         applicationId = jobApplicationService.create(userId, new JobApplicationCreateRequest(
                 "Acme", null, "Backend Engineer", null, null, null,
-                null, null, null, null, null, null)).id();
+                null, null, null, null, null, null, null)).id();
     }
 
     @Test

@@ -6,6 +6,7 @@ import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.request.J
 import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.response.ApplicationStatusHistoryResponse;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.response.JobApplicationResponse;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.enums.ApplicationStatus;
+import dev.aegeanship.jobtracker.jobapplicationservice.application.enums.InitialStatus;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.exception.JobApplicationNotFoundException;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.repository.JobApplicationRepository;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.scheduler.JobApplicationPurgeScheduler;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -66,6 +68,29 @@ class JobApplicationServiceIntegrationTest extends AbstractIntegrationTest {
         assertThat(history).hasSize(1);
         assertThat(history.getFirst().fromStatus()).isNull();
         assertThat(history.getFirst().toStatus()).isEqualTo(ApplicationStatus.APPLIED);
+    }
+
+    @Test
+    void savedBookmarkBecomesAppliedWithStampedDateAndHistoryTrail() {
+        JobApplicationResponse bookmark =
+                service.create(userId, createRequest("Acme", InitialStatus.SAVED));
+
+        assertThat(bookmark.status()).isEqualTo(ApplicationStatus.SAVED);
+        assertThat(bookmark.appliedAt()).isNull();
+
+        JobApplicationResponse applied = service.updateStatus(userId, bookmark.id(),
+                new ApplicationStatusUpdateRequest(ApplicationStatus.APPLIED, "sent CV"));
+
+        assertThat(applied.status()).isEqualTo(ApplicationStatus.APPLIED);
+        assertThat(applied.appliedAt()).isEqualTo(LocalDate.now());
+
+        List<ApplicationStatusHistoryResponse> history =
+                service.getStatusHistory(userId, bookmark.id());
+        assertThat(history).hasSize(2);
+        assertThat(history.getFirst().fromStatus()).isNull();
+        assertThat(history.getFirst().toStatus()).isEqualTo(ApplicationStatus.SAVED);
+        assertThat(history.getLast().fromStatus()).isEqualTo(ApplicationStatus.SAVED);
+        assertThat(history.getLast().toStatus()).isEqualTo(ApplicationStatus.APPLIED);
     }
 
     @Test
@@ -160,8 +185,12 @@ class JobApplicationServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     private JobApplicationCreateRequest createRequest(String companyName) {
+        return createRequest(companyName, null);
+    }
+
+    private JobApplicationCreateRequest createRequest(String companyName, InitialStatus status) {
         return new JobApplicationCreateRequest(
                 companyName, null, "Backend Engineer", null, null, null,
-                null, null, null, null, null, null);
+                null, null, null, null, null, null, status);
     }
 }

@@ -148,7 +148,7 @@ class InterviewControllerIntegrationTest extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonMapper.writeValueAsString(new JobApplicationCreateRequest(
                                 "Acme", null, "Backend Engineer", null, null, null,
-                                null, null, null, null, null, null))))
+                                null, null, null, null, null, null, null))))
                 .andExpect(status().isCreated())
                 .andReturn();
         return UUID.fromString(

@@ -67,7 +67,7 @@ class JobApplicationServiceApplicationTests extends AbstractIntegrationTest {
 						"Acme", "https://acme.dev", "Backend Engineer",
 						"https://acme.dev/jobs/42", "Izmir", WorkMode.HYBRID,
 						new BigDecimal("90000"), new BigDecimal("120000"), "EUR",
-						LocalDate.now(), "LinkedIn", "referred by a friend"))
+						LocalDate.now(), "LinkedIn", "referred by a friend", null))
 				.exchange()
 				.expectStatus().isCreated()
 				.expectBody()

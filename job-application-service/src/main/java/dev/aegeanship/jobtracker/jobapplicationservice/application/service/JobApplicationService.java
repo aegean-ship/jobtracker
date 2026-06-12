@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,6 +40,9 @@ public class JobApplicationService {
     @Transactional
     public JobApplicationResponse create(UUID userId, JobApplicationCreateRequest request) {
         JobApplication application = jobApplicationMapper.toEntity(request, userId);
+        if (request.status() != null) {
+            application.setStatus(request.status().toApplicationStatus());
+        }
         jobApplicationRepository.save(application);
 
         statusHistoryRepository.save(ApplicationStatusHistory.builder()
@@ -72,6 +76,10 @@ public class JobApplicationService {
         }
 
         application.setStatus(toStatus);
+        // only SAVED can transition to APPLIED: the bookmark became a real application
+        if (toStatus == ApplicationStatus.APPLIED && application.getAppliedAt() == null) {
+            application.setAppliedAt(LocalDate.now());
+        }
         statusHistoryRepository.save(ApplicationStatusHistory.builder()
                 .jobApplication(application)
                 .fromStatus(fromStatus)

@@ -1,6 +1,8 @@
 package dev.aegeanship.jobtracker.jobapplicationservice.application.dto.request;
 
+import dev.aegeanship.jobtracker.jobapplicationservice.application.enums.InitialStatus;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.enums.WorkMode;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 
@@ -35,6 +37,14 @@ public record JobApplicationCreateRequest(
 
         String source,
 
-        String notes
+        String notes,
+
+        // null means APPLIED; a SAVED application is a bookmark not yet applied to
+        InitialStatus status
 ) {
+
+    @AssertTrue(message = "appliedAt must not be set when status is SAVED")
+    private boolean isAppliedAtConsistentWithStatus() {
+        return status != InitialStatus.SAVED || appliedAt == null;
+    }
 }

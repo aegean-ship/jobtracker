@@ -91,7 +91,7 @@ class JobApplicationControllerTest {
     void createWithInvalidBodyReturnsValidationFieldErrors() throws Exception {
         JobApplicationCreateRequest invalid = new JobApplicationCreateRequest(
                 "  ", null, "Backend Engineer", null, null, null,
-                new BigDecimal("-1"), null, null, null, null, null);
+                new BigDecimal("-1"), null, null, null, null, null, null);
 
         mockMvc.perform(post(BASE_URL)
                         .header(USER_ID_HEADER, USER_ID)
@@ -101,6 +101,33 @@ class JobApplicationControllerTest {
                 .andExpect(jsonPath("$.error.code").value("VALIDATION_FAILED"))
                 .andExpect(jsonPath("$.error.fieldErrors[?(@.field == 'companyName')]").exists())
                 .andExpect(jsonPath("$.error.fieldErrors[?(@.field == 'salaryMin')]").exists());
+
+        verify(jobApplicationService, never()).create(any(), any());
+    }
+
+    @Test
+    void createWithNonInitialStatusReturns400Envelope() throws Exception {
+        // OFFER is a valid ApplicationStatus but not a valid InitialStatus
+        mockMvc.perform(post(BASE_URL)
+                        .header(USER_ID_HEADER, USER_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"companyName\":\"Acme\",\"positionTitle\":\"Backend Engineer\","
+                                + "\"status\":\"OFFER\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error.code").value("BAD_REQUEST"));
+
+        verify(jobApplicationService, never()).create(any(), any());
+    }
+
+    @Test
+    void createSavedWithAppliedAtReturnsValidationError() throws Exception {
+        mockMvc.perform(post(BASE_URL)
+                        .header(USER_ID_HEADER, USER_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"companyName\":\"Acme\",\"positionTitle\":\"Backend Engineer\","
+                                + "\"status\":\"SAVED\",\"appliedAt\":\"2026-06-12\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error.code").value("VALIDATION_FAILED"));
 
         verify(jobApplicationService, never()).create(any(), any());
     }
@@ -236,7 +263,7 @@ class JobApplicationControllerTest {
     private JobApplicationCreateRequest createRequest() {
         return new JobApplicationCreateRequest(
                 "Acme", null, "Backend Engineer", null, null, null,
-                null, null, null, null, null, null);
+                null, null, null, null, null, null, null);
     }
 
     private JobApplicationResponse applicationResponse(ApplicationStatus status) {

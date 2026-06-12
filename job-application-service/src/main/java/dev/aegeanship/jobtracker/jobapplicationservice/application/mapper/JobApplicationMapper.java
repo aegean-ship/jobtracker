@@ -12,7 +12,8 @@ import java.util.UUID;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface JobApplicationMapper {
 
-    // status is ignored so the entity's @Builder.Default (APPLIED) applies
+    // status is resolved in the service: request.status() if given,
+    // otherwise the entity's @Builder.Default (APPLIED)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
     JobApplication toEntity(JobApplicationCreateRequest request, UUID userId);

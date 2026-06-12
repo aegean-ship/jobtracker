@@ -139,7 +139,7 @@ class JobApplicationControllerIntegrationTest extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonMapper.writeValueAsString(new JobApplicationCreateRequest(
                                 "  ", null, "Backend Engineer", null, null, null,
-                                null, null, null, null, null, null))))
+                                null, null, null, null, null, null, null))))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error.code").value("VALIDATION_FAILED"))
                 .andExpect(jsonPath("$.error.fieldErrors[?(@.field == 'companyName')]").exists());
@@ -151,7 +151,7 @@ class JobApplicationControllerIntegrationTest extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonMapper.writeValueAsString(new JobApplicationCreateRequest(
                                 companyName, null, "Backend Engineer", null, null, null,
-                                null, null, null, null, null, null))))
+                                null, null, null, null, null, null, null))))
                 .andExpect(status().isCreated())
                 .andReturn();
         return UUID.fromString(

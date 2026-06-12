@@ -7,6 +7,7 @@ import dev.aegeanship.jobtracker.jobapplicationservice.application.dto.response.
 import dev.aegeanship.jobtracker.jobapplicationservice.application.entity.ApplicationStatusHistory;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.entity.JobApplication;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.enums.ApplicationStatus;
+import dev.aegeanship.jobtracker.jobapplicationservice.application.enums.InitialStatus;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.exception.JobApplicationNotFoundException;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.mapper.ApplicationStatusHistoryMapperImpl;
 import dev.aegeanship.jobtracker.jobapplicationservice.application.mapper.JobApplicationMapperImpl;
@@ -25,6 +26,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -78,6 +80,18 @@ class JobApplicationServiceTest {
     }
 
     @Test
+    void createWithSavedStatusPersistsBookmark() {
+        JobApplicationResponse response = service.create(USER_ID, createRequest(InitialStatus.SAVED));
+
+        assertThat(response.status()).isEqualTo(ApplicationStatus.SAVED);
+        assertThat(response.appliedAt()).isNull();
+
+        ApplicationStatusHistory history = capturedHistory();
+        assertThat(history.getFromStatus()).isNull();
+        assertThat(history.getToStatus()).isEqualTo(ApplicationStatus.SAVED);
+    }
+
+    @Test
     void getByIdReturnsOwnedApplication() {
         when(jobApplicationRepository.findByIdAndUserId(APPLICATION_ID, USER_ID))
                 .thenReturn(Optional.of(application(ApplicationStatus.APPLIED)));
@@ -124,6 +138,23 @@ class JobApplicationServiceTest {
         assertThat(history.getFromStatus()).isEqualTo(ApplicationStatus.APPLIED);
         assertThat(history.getToStatus()).isEqualTo(ApplicationStatus.SCREENING);
         assertThat(history.getNote()).isEqualTo("recruiter call");
+    }
+
+    @Test
+    void updateStatusFromSavedToAppliedStampsAppliedAt() {
+        JobApplication application = application(ApplicationStatus.SAVED);
+        when(jobApplicationRepository.findByIdAndUserId(APPLICATION_ID, USER_ID))
+                .thenReturn(Optional.of(application));
+
+        JobApplicationResponse response = service.updateStatus(USER_ID, APPLICATION_ID,
+                new ApplicationStatusUpdateRequest(ApplicationStatus.APPLIED, null));
+
+        assertThat(response.status()).isEqualTo(ApplicationStatus.APPLIED);
+        assertThat(application.getAppliedAt()).isEqualTo(LocalDate.now());
+
+        ApplicationStatusHistory history = capturedHistory();
+        assertThat(history.getFromStatus()).isEqualTo(ApplicationStatus.SAVED);
+        assertThat(history.getToStatus()).isEqualTo(ApplicationStatus.APPLIED);
     }
 
     @Test
@@ -183,9 +214,13 @@ class JobApplicationServiceTest {
     }
 
     private JobApplicationCreateRequest createRequest() {
+        return createRequest(null);
+    }
+
+    private JobApplicationCreateRequest createRequest(InitialStatus status) {
         return new JobApplicationCreateRequest(
                 "Acme", null, "Backend Engineer", null, null, null,
-                null, null, null, null, null, null);
+                null, null, null, null, null, null, status);
     }
 
     private JobApplication application(ApplicationStatus status) {
