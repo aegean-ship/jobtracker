@@ -72,12 +72,24 @@ class JobApplicationServiceTest {
         assertThat(response.userId()).isEqualTo(USER_ID);
         assertThat(response.companyName()).isEqualTo("Acme");
         assertThat(response.status()).isEqualTo(ApplicationStatus.APPLIED);
+        assertThat(response.appliedAt()).isEqualTo(LocalDate.now());
 
         verify(jobApplicationRepository).save(any(JobApplication.class));
 
         ApplicationStatusHistory history = capturedHistory();
         assertThat(history.getFromStatus()).isNull();
         assertThat(history.getToStatus()).isEqualTo(ApplicationStatus.APPLIED);
+    }
+
+    @Test
+    void createKeepsExplicitAppliedAtForBackfills() {
+        LocalDate backfilledDate = LocalDate.now().minusDays(10);
+
+        JobApplicationResponse response =
+                service.create(USER_ID, createRequest(InitialStatus.APPLIED, backfilledDate));
+
+        assertThat(response.status()).isEqualTo(ApplicationStatus.APPLIED);
+        assertThat(response.appliedAt()).isEqualTo(backfilledDate);
     }
 
     @Test
@@ -254,9 +266,13 @@ class JobApplicationServiceTest {
     }
 
     private JobApplicationCreateRequest createRequest(InitialStatus status) {
+        return createRequest(status, null);
+    }
+
+    private JobApplicationCreateRequest createRequest(InitialStatus status, LocalDate appliedAt) {
         return new JobApplicationCreateRequest(
                 "Acme", null, "Backend Engineer", null, null, null,
-                null, null, null, null, null, null, status);
+                null, null, null, appliedAt, null, null, status);
     }
 
     private JobApplication application(ApplicationStatus status) {

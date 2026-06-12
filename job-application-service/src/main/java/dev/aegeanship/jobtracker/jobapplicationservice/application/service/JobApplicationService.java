@@ -44,6 +44,11 @@ public class JobApplicationService {
         if (request.status() != null) {
             application.setStatus(request.status().toApplicationStatus());
         }
+        // keep the invariant "APPLIED implies appliedAt"; an explicit
+        // appliedAt from the request (a backfill) takes precedence
+        if (application.getStatus() == ApplicationStatus.APPLIED && application.getAppliedAt() == null) {
+            application.setAppliedAt(LocalDate.now());
+        }
         jobApplicationRepository.save(application);
 
         statusHistoryRepository.save(ApplicationStatusHistory.builder()
