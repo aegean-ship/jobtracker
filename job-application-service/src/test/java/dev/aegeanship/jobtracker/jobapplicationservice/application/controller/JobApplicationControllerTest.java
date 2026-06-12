@@ -116,7 +116,10 @@ class JobApplicationControllerTest {
                         .content("{\"companyName\":\"Acme\",\"positionTitle\":\"Backend Engineer\","
                                 + "\"status\":\"OFFER\"}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error.code").value("BAD_REQUEST"));
+                .andExpect(jsonPath("$.error.code").value("BAD_REQUEST"))
+                // the Jackson parse error (class names, accepted values) must stay server-side
+                .andExpect(jsonPath("$.error.message")
+                        .value("Request body is malformed or contains invalid values"));
 
         verify(jobApplicationService, never()).create(any(), any());
     }
@@ -162,7 +165,9 @@ class JobApplicationControllerTest {
         mockMvc.perform(get(BASE_URL + "/not-a-uuid")
                         .header(USER_ID_HEADER, USER_ID))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error.code").value("BAD_REQUEST"));
+                .andExpect(jsonPath("$.error.code").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.error.message")
+                        .value("Parameter 'id' has an invalid value"));
     }
 
     @Test
@@ -266,7 +271,9 @@ class JobApplicationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"toStatus\":\"NOT_A_STATUS\"}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error.code").value("BAD_REQUEST"));
+                .andExpect(jsonPath("$.error.code").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.error.message")
+                        .value("Request body is malformed or contains invalid values"));
     }
 
     @Test
