@@ -36,6 +36,11 @@ CREATE TABLE job_applications
 CREATE INDEX idx_job_applications_user_id ON job_applications (user_id)
     WHERE deleted_at IS NULL;
 
+-- supports the purge job's "deleted_at < :cutoff" delete; carries only
+-- soft-deleted rows, which the purge keeps draining, so it stays small
+CREATE INDEX idx_job_applications_deleted_at ON job_applications (deleted_at)
+    WHERE deleted_at IS NOT NULL;
+
 CREATE TABLE application_status_history
 (
     id                 UUID PRIMARY KEY,
